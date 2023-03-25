@@ -1,2 +1,2 @@
 HIT OSLab
-For more details, please visit [my blog](elite-zx.github.io)
+For more details, please visit [my blog](https://elite-zx.github.io)
