@@ -1,0 +1,106 @@
+pid 12:	 producer created!
+pid 12:	 produces product 0!
+pid 12:	 produces product 1!
+pid 12:	 produces product 2!
+pid 12:	 produces product 3!
+pid 12:	 produces product 4!
+pid 12:	 produces product 5!
+pid 12:	 produces product 6!
+pid 12:	 produces product 7!
+pid 12:	 produces product 8!
+pid 12:	 produces product 9!
+pid 18:	 consumer 5 created!
+pid:18:	 consumer 5 consume product 0
+pid:18:	 consumer 5 consume product 1
+pid:18:	 consumer 5 consume product 2
+pid:18:	 consumer 5 consume product 3
+pid:18:	 consumer 5 consume product 4
+pid:18:	 consumer 5 consume product 5
+pid:18:	 consumer 5 consume product 6
+pid:18:	 consumer 5 consume product 7
+pid:18:	 consumer 5 consume product 8
+pid:18:	 consumer 5 consume product 9
+pid 17:	 consumer 4 created!
+pid 16:	 consumer 3 created!
+pid 15:	 consumer 2 created!
+pid 14:	 consumer 1 created!
+pid 12:	 produces product 10!
+pid 12:	 produces product 11!
+pid 12:	 produces product 12!
+pid 12:	 produces product 13!
+pid 12:	 produces product 14!
+pid 12:	 produces product 15!
+pid 12:	 produces product 16!
+pid 12:	 produces product 17!
+pid 12:	 produces product 18!
+pid 12:	 produces product 19!
+pid:14:	 consumer 1 consume product 10
+pid:14:	 consumer 1 consume product 11
+pid:14:	 consumer 1 consume product 12
+pid:14:	 consumer 1 consume product 13
+pid:14:	 consumer 1 consume product 14
+pid:14:	 consumer 1 consume product 15
+pid:15:	 consumer 2 consume product 16
+pid:16:	 consumer 3 consume product 17
+pid:17:	 consumer 4 consume product 18
+pid:18:	 consumer 5 consume product 19
+pid 12:	 produces product 20!
+pid 12:	 produces product 21!
+pid 12:	 produces product 22!
+pid 12:	 produces product 23!
+pid 12:	 produces product 24!
+pid 12:	 produces product 25!
+pid 12:	 produces product 26!
+pid 12:	 produces product 27!
+pid 12:	 produces product 28!
+pid 12:	 produces product 29!
+pid:18:	 consumer 5 consume product 20
+pid:18:	 consumer 5 consume product 21
+pid:18:	 consumer 5 consume product 22
+pid:18:	 consumer 5 consume product 23
+pid:18:	 consumer 5 consume product 24
+pid:18:	 consumer 5 consume product 25
+pid:17:	 consumer 4 consume product 26
+pid:16:	 consumer 3 consume product 27
+pid:15:	 consumer 2 consume product 28
+pid:14:	 consumer 1 consume product 29
+pid 12:	 produces product 30!
+pid 12:	 produces product 31!
+pid 12:	 produces product 32!
+pid 12:	 produces product 33!
+pid 12:	 produces product 34!
+pid 12:	 produces product 35!
+pid 12:	 produces product 36!
+pid 12:	 produces product 37!
+pid 12:	 produces product 38!
+pid 12:	 produces product 39!
+pid:14:	 consumer 1 consume product 30
+pid:14:	 consumer 1 consume product 31
+pid:14:	 consumer 1 consume product 32
+pid:14:	 consumer 1 consume product 33
+pid:14:	 consumer 1 consume product 34
+pid:14:	 consumer 1 consume product 35
+pid:15:	 consumer 2 consume product 36
+pid:16:	 consumer 3 consume product 37
+pid:17:	 consumer 4 consume product 38
+pid:18:	 consumer 5 consume product 39
+pid 12:	 produces product 40!
+pid 12:	 produces product 41!
+pid 12:	 produces product 42!
+pid 12:	 produces product 43!
+pid 12:	 produces product 44!
+pid 12:	 produces product 45!
+pid 12:	 produces product 46!
+pid 12:	 produces product 47!
+pid 12:	 produces product 48!
+pid 12:	 produces product 49!
+pid:18:	 consumer 5 consume product 40
+pid:18:	 consumer 5 consume product 41
+pid:18:	 consumer 5 consume product 42
+pid:18:	 consumer 5 consume product 43
+pid:18:	 consumer 5 consume product 44
+pid:18:	 consumer 5 consume product 45
+pid:17:	 consumer 4 consume product 46
+pid:16:	 consumer 3 consume product 47
+pid:15:	 consumer 2 consume product 48
+pid:14:	 consumer 1 consume product 49
