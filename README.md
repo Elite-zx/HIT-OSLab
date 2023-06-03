@@ -1,25 +1,40 @@
-# 前言
-_Learning operating system by coding it！_
-# 实验0 实验环境搭建
+HIT operating system labs (linux0.11)
+===
+- [x] lab1
+- [x] lab2
+- [x] lab3
+- [x] lab4
+- [x] lab5
+- [x] lab6
+- [x] lab7
+- [x] lab8
+
 ---
+_Learning operating system by coding it！_
+
+# 实验0 实验环境搭建
+
+---
+
 [reference1](https://hoverwinter.gitbooks.io/hit-oslab-manual/content/environment.html)
 [reference2](https://blog.csdn.net/zy010101/article/details/108085192)
 遇到的问题：在编译linux0.11时，出现`fatal error：asm/ioctl.h: No such file or directory`，`loctl.h`这个文件是在库`linux-lib-dev`中的，而且我已经安装了这个库，但还是有这个错误
-![image.png](image/image-3.png)
+![](attachment/0fc97dc6618be181bcc508a1ae24096d.png)
  解决方法：使用i386版本的linux-libc-dev
 ```bash
 sudo apt-get install linux-libc-dev:i386
 ```
 # 实验1 操作系统的引导
+
 ---
 
 ## 1. 改写bootsect.s
 
 1. 我们只需要`bootsect.s`源码中打印字符串的部分，因为不涉及迁移`bootsect`从`0x07c00`到`0x90000`的操作，所以`bootsect.s`读入内存后还是在`0x07c00`的位置，因此要添加`mov es, #07c0`才能使`es:bp`指向正确的字符串起始位置。此外，`cx`参数的大小为字符串大小+6，这里的6是3个CR/LF (carriage return/line feed: 13 10) 
 
-![image.png](image/image.png)
-![image.png](image/image-1.png)
-![image.png](image/image-2.png)
+![](attachment/c8816d22b6b3d59ca96a5ac9155ffec9.png)
+![](attachment/b3660aafb778e2e59f1b85d93bcfd830.png)
+![](attachment/1cfcbf9dea0e7cba56adf806615be13b.png)
 
 2. 改写`bootsect.s`
 ```
@@ -59,9 +74,10 @@ dd bs=1 if=bootsect of=Image skip=32
 
 4. 结果
 
-![image.png](image/image-2.png)
+![](attachment/0cdf798c3c7c3b0c98b5c22c198edb2b.png)
 ## 2. 改写setup.s
 ### task1
+
 1. 在`setup.s`中写入`bootsect.s`的内容，对字符串信息作修改，修改`es`为`0x07e0`，因为`setup`在内存紧跟`bootsect`(0x07c00 + 0x200)之后 (这里将`cs`的值通过`ax`赋给`es`，因为此时`cs`的值就是`0x07e0`）)
 ```
 entry _start
@@ -86,9 +102,9 @@ msg1:
 .ascii "Now we are in SETUP"
 .byte 13,10,13,10
 ```
-![int 0x13](image/int_0x13.png)
+![](attachment/aef3252bfb573b6b244bc26b131883fb.png)
 
-2. 在`bootsect.s`中添加源码中载入`setup`的部分，并修改`SETUPSEG`为`0x07e0`，原因还是在于我们没有移动`bootsect`，**去掉循环并修改`SETUPLEN`为`2`，因为对我们的改写后的`setup`，仅需读入两个扇区就够了（其实一个扇区的大小也够了）
+2. 在`**bootsect.s**`中添加源码中载入`setup`的部分，并修改`SETUPSEG`为`0x07e0`，原因还是在于我们没有移动`**bootsect**`**，**去掉循环并修改`SETUPLEN`为`2`，因为对我们的改写后的`setup`，仅需读入两个扇区就够了（其实一个扇区的大小也够了）
 ```
 SETUPLEN = 1
 SETUPSEG = 0x07e0
@@ -135,15 +151,15 @@ boot_flag:
 
 3. 修改`linux-0.11/tool/build.c`注释掉最后部分，以便我们借助MakeFile编译`bootsect.s`与`setup.s`，而不用两个分别手动编译
 
-![image.png](image/image-7.png)
+![](attachment/631621eec969856642f202082e90dcae.png)
 
 4. 结果
 
-![image.png](image/image-4.png)
+![](attachment/b3660aafb778e2e59f1b85d93bcfd830.png)
 ### task2
 
 1. 我们需要`setup.s`源码中获取硬件信息的部分，需要解决的问题是将这些数据打印在屏幕上，利用了功能号为`0x0E`的`0x10`号中断，指导书写了一个`print_nl`来打印回车换行符，而我直接在打印的字符串中加入`13 10`实现回车换行
-```plain
+```
 INITSEG  = 0x9000
 
 entry _start
@@ -304,7 +320,7 @@ msg_kb:
 
 2. 结果
 
-![image.png](image/image-5.png)
+![](attachment/d83b172eeeb63114a561d5ea1e3942e7.png)
 # 实验2 系统调用
 
 ---
@@ -343,10 +359,10 @@ int main()
 ## 2. 修改unistd.h
 可以跳过这步，因为之后的编译过程所用到的`unistd.h`头文件并不在这个源码树下，而是在标准头文件`/usr/include`下。
 在`linux-0.11/include/unistd.h`添加宏`_NR_whoami`、`_NR_iam`以在`_syscall*`函数中传递正确的参数给`0x80`号中断处理程序
-![image.png](image/image-8.png)
+![](attachment/825503e7b3bc733ec849543bef18bae4.png)
 ## 3. 修改_sys_call_table函数表
 在`linux-0.11/include/linux/sys.h`添加函数指针`sys_whoami`、`sys_iam`，函数在`sys_call_table`数组中的位置必须和在`<unistd.h>`文件中的`__NR_xxxxxx`的值对应上。在文件开头加上`extern`是让编译器在其它文件寻找这两个函数
-![image.png](image/image-12.png)
+![](attachment/c5f54fc34542a48849bf640f523746c1.png)
 ## 4. 实现函数sys_whoami, sys_iam
 在`linux-0.11/kernel/iamwho.c`中编写最终的执行函数，执行这两个函数是系统调用的最后一步
 在 Linux-0.11 内核中，`get_fs_byte` 和 `put_fs_byte` 函数用于在用户空间和内核空间之间传输数据。
@@ -401,7 +417,7 @@ int sys_whoami(char* name, unsigned int size)
 sudo ./mount-hdc 
 cp iam.c whoami.c hdc/usr/root
 ```
-![image.png](image/image-6.png)
+![](attachment/e101da7028d27378793cef11f5352872.png)
 注意在`iam.c`,`whoami.c`程序内的头文件`<unistd.h>`是标准头文件，是由GCC编译器一同安装的，它们通常随着GCC一起打包并分发，通常位于`/usr/include`目录下，而不是在之前修过的源码树下的`include/unistd.h`, 因此我们要转入`hdc/usr/include`下修改`<unistd.h>`，加入两个宏`__NR_iam`,`__NR_whoami`
 编译
 ```bash
@@ -409,7 +425,7 @@ gcc -o iam iam.c
 gcc -o whoami whoami.c
 ```
 ## 6. 验证结果
-![image.png](image/image-10.png)
+![](attachment/821c28d5b04262d88ad0e48d4ad95bdf.png)
 # 实验3 进程运行轨迹的跟踪与统计
 
 ---
@@ -418,10 +434,10 @@ gcc -o whoami whoami.c
 ### 1.1. 系统调用times
 `times`系统调用接受一个`struct tms*`类型的参数，该结构体用于保存进程和其子进程的 CPU 时间信息，同时 times 系统调用会返回一个滴答数，即时钟周期数，该滴答数表示自OS启动以来经过的时钟周期数。
 `struct tms`类型在`include/sys/times.h`中定义如下：
-![image.png](image/image-11.png)
-![image.png](image/image-9.png)
+![](attachment/825503e7b3bc733ec849543bef18bae4.png)
+![](attachment/c48cf07a034075a0d27348bf6dbac5e4.png)
 `tms_stime`和`tms_utime`分别记录了进程在内核态和用户态下消耗的CPU时间总和，它们的和就是进程从开始执行到调用times系统调用所经过的时间。`tms_stime`和`tms_utime`并不包括进程在睡眠状态或等待I/O操作中所消耗的时间，因此它们的和也不等于进程的实际运行时间。
-注意这里时间的单位是CPU的滴答时间（tick），一个滴答数表示两个时钟中断的间隔。在Linux系统中，时钟中断通常由硬件定时器产生，定时器会以固定的频率向CPU发送中断信号。**每当时钟中断发生时，内核会将当前进程的时间片计数器减 1，内核会检查当前进程的时间片（counter）是否已经用完，如果用完了，就将当前进程放到就绪队列中，然后调用调度函数 schedule 选择一个新的进程运行。** 这个频率通常是100Hz，即一秒发生100次，也就是说时间中断的间隔为10ms（1/100s），每隔10ms就发生一次时钟中断，linux内核中的`jiffies`变量就记录了时间中断的个数，即滴答数。那么可以看出这里的时间单位既然是滴答数，而滴答数10ms产生一个，那么实际时间应该是 $ticks/100$ (秒)，100是常量`HZ`的值
+注意这里时间的单位是CPU的滴答时间（tick），一个滴答数表示两个时钟中断的间隔。在Linux系统中，时钟中断通常由硬件定时器产生，定时器会以固定的频率向CPU发送中断信号。**每当时钟中断发生时，内核会将当前进程的时间片计数器减 1，内核会检查当前进程的时间片（counter）是否已经用完，如果用完了，就将当前进程放到就绪队列中，然后调用调度函数 schedule 选择一个新的进程运行。**这个频率通常是100Hz，即一秒发生100次，也就是说时间中断的间隔为10ms（1/100s），每隔10ms就发生一次时钟中断，linux内核中的`jiffies`变量就记录了时间中断的个数，即滴答数。那么可以看出这里的时间单位既然是滴答数，而滴答数10ms产生一个，那么实际时间应该是 $ticks/100$ (秒)，100是常量`HZ`的值
 由此，如果想获取一个进程从开始到结束的CPU使用时间，即用户态下CPU时间和内核态下CPU时间之和，可用如下函数
 ```cpp
 #include <stdio.h>
@@ -445,7 +461,7 @@ int main() {
 
 ```
 用到的`clock_t`在`include/time.h`中定义如下
-![image.png](image/image-9.png)
+![](attachment/c48cf07a034075a0d27348bf6dbac5e4.png)
 ### 1.2. 系统调用wait
 `wait` 函数是一个系统调用（位于`include/sys/wait.h`）。在Unix/Linux操作系统中，`wait`函数可以等待子进程结束，并获取子进程的退出状态。在使用`wait`函数时，如果子进程已经结束，`wait`函数会立即返回并返回子进程的退出状态；如果子进程还没有结束，`wait`函数会阻塞父进程，直到子进程结束并返回其退出状态。具体来说，`wait` 函数的作用如下：
 1 如果当前进程没有子进程，`wait` 函数会立即返回 `-1`，并设置 `errno` 为 `ECHILD`，表示当前进程没有子进程需要等待。
@@ -453,7 +469,7 @@ int main() {
 3 如果当前进程有多个子进程正在运行，调用`wait`函数会等待其中任意一个子进程结束，并且无法指定要等待哪个子进程。如果需要等待特定的子进程，可以使用 `waitpid`函数代替`wait`函数。
 需要注意的是，如果当前进程没有调用wait函数等待其子进程结束，那么当子进程结束时，其退出状态可能会一直保存在内核中，直到当前进程调用`wait`或`waitpid`函数获取该状态。如果当前进程没有获取子进程的退出状态，那么该子进程就会成为僵尸进程（Zombie Process），占用系统资源并且无法被正常清理。
 因此，在编写多进程程序时，通常需要在父进程中调用`wait`或`waitpid`函数等待子进程结束，并获取其退出状态，以避免产生僵尸进程。
-![image.png](image/image-15.png)
+![](attachment/02fe9737164d08468c47ff985f1d6276.png)
 对linux0.11 wait函数必须接受一个`int`参数以保存子进程退出状态，如果你不想保存该信息，可传递`NULL`。而在现代linux中，该参数为可选参数。
 ### 1.3. linux0.11中进程的state值
 在Linux 0.11中，进程状态可以被表示为以下几个值：
@@ -463,7 +479,7 @@ int main() {
 3. `TASK_UNINTERRUPTIBLE`：和`TASK_INTERRUPTIBLE`一样，进程也是正在等待某个事件的发生，但是进程在等待期间不会响应信号，直到事件发生后才会退出等待状态，比如I/O操作。
 4. `TASK_STOPPED`：进程已经被停止，通常是收到了一个SIGSTOP信号。
 
-![include/linux/sched.h](image/include!linux!sched.h.png)
+![](attachment/3d998177822f40110dc0de83e59313be.png)
 ## 2. process.c
 ```cpp
 #include<unistd.h>
@@ -521,12 +537,12 @@ void cpuio_bound(int last, int cpu_time, int io_time)
 	}	
 }
 ```
-![image.png](image/image-21.png)
+![](attachment/4ca217256a1b821d07cb20ec055b3152.png)
 ## 3. 生成log的前置工作
 
 1. 修改`linux-0.11/init/main.c`，将文件描述符`3`与`process.log`关联。文件描述符是一个非负整数，它是操作系统内部用来标识一个特定文件的引用。
 
-![image.png](image/image-16.png)
+![](attachment/6d2047abf1eabe1da394c52980b55800.png)
 
 2. 在内核中添加`fprintk`函数用于在程序中调用以写入log文件
 ```cpp
@@ -585,7 +601,7 @@ int fprintk(int fd, const char *fmt, ...)
 3. 修改fork.c
 
 进程在创建后就立马被设置为就绪态`TASK_RUNNING`
-![image.png](image/image-16.png)
+![](attachment/79ff16fbb9eb2d35d267aa2017761a11.png)
 
 4. 修改sched.c
 
@@ -1052,7 +1068,7 @@ void sched_init(void)
 sys_pause在Linux0.11中，`sys_pause()`系统调用的主要作用是让进程暂停执行，直到接收到一个信号。当进程调用`sys_pause()`系统调用时，它会将自己的状态设置为`TASK_INTERRUPTIBLE`，并且将其添加到等待信号队列中。然后，进程会进入睡眠状态，直到收到一个信号或者被其他进程显式地唤醒。
 这个系统调用通常用于实现等待信号的操作，比如等待一个定时器信号或者等待一个IO操作完成的信号。在这种情况下，进程可以使用`sys_pause()`系统调用进入睡眠状态，而不必浪费CPU资源等待信号的到来。当信号到来时，内核会唤醒进程，并且将信号传递给进程的信号处理程序进行处理。
 需要注意的是，在Linux 2.6以后的版本中，`sys_pause()`系统调用已经被废弃，被`sys_rt_sigsuspend()`系统调用所取代。`sys_rt_sigsuspend()`系统调用可以实现类似的等待信号的操作，并且提供更多的控制选项。
-![image.png](image/image-18.png)
+![](attachment/882778374b4a4e4e71d923210ac02fab.png)
 
 5. 修改exit.c
 ```c
@@ -1106,9 +1122,9 @@ int do_exit(long code)
 ```bash
 cp process.c hdc/usr/root
 ```
-![image.png](image/image-13.png)
+![](attachment/02fe9737164d08468c47ff985f1d6276.png)
 编译运行, 最后执行一个`sync`命令，确保将文件系统中的所有缓存数据写入磁盘
-![image.png](image/image-14.png)
+![](attachment/79ff16fbb9eb2d35d267aa2017761a11.png)
 **旁注: sync命令**
 > sync 命令是用于将文件系统中的所有缓存数据写入磁盘的命令。在 Linux 中，当一个进程修改了一个文件时，这个修改不会立即写入磁盘，而是会先被写入内存中的缓存，以提高文件系统的性能。然而，如果系统崩溃或出现其他问题，这些修改可能会丢失。因此，为了保证数据的完整性，我们需要将缓存数据定期地写入磁盘中。
 > sync 命令会将所有的缓存数据写入磁盘中，并将所有被修改的元数据（如 i-node、目录结构等）更新到磁盘中。这样可以保证所有的修改都被写入到磁盘中，从而避免了数据的丢失。通常在关机前执行 sync 命令，以确保所有数据都已被保存到磁盘中。
@@ -1120,7 +1136,7 @@ cp process.c hdc/usr/root
 cp hdc/var/process.log process.log
 ```
 查看process.log，进程0在log关联文件描述符之前就已经在运行，因此未出现在log文件中
-![image.png](image/image-17.png)![image.png](image/image-19.png)
+![](attachment/3e830a5c6e61ab255ee992dc5bac5593.png)![](attachment/8e0524ec54ddb87b0a5e113d5fa1d7fa.png)
 ## 5. 分析log
 用指导书给的py脚本程序`stat_log.py`分析log文件，在分析之前将py脚本文件的第一行`#!/usr/bin/python`改为`#!/usr/bin/python2`（已安装python2）以适配版本，否则在python3环境下`print`函数会出错
 为该脚本文件分配可执行权限
@@ -1131,24 +1147,25 @@ chmod +x stat_log.py
 ```bash
 ./stat_log.py process.log 9 10 11 12 -g | less
 ```
-![image.png](image/image-20.png)
+![](attachment/649840cfe743be95432ea8e447458260.png)
 ## 6. 修改时间片，重新分析log
 进程的时间片是进程的`counter`值，而counter在schedule函数中根据`priority`动态设置，因此进程的时间片受`counter`和`prioriy`两个变量的影响。进程的`priority`继承自父进程，进而所有进程的`priority`都来自于进程0 。
 linux0.11中，`priority`和`counter`在`include/linux/sched.h`中定义
-![image.png](image/image-27.png)
+![](attachment/272c3457121ac25449d18a44519a3a56.png)
 我们修改这个值，然后重新执行process程序，分析log。
-![image.png](image/image-21.png)
-![image.png](image/image-21.png)
-![image.png](image/image-22.png)
+![](attachment/edf7c77ecdd9d23b77031b2b97969a17.png)
+![](attachment/edf7c77ecdd9d23b77031b2b97969a17.png)
+![](attachment/308e7fc00291185da771123b16b349b8.png)
 可以看到这里的时间平均周转时间变多了，有以下两种可能：
 
 1. 当进程的执行时间很长时，增加时间片大小可能会导致进程在等待时间片结束时的等待时间变长，因为进程需要等待更长的时间才能获得 CPU
 2. 当进程的数量非常多时，增加时间片大小可能会导致进程在就绪队列中等待的时间变长，因为每个进程需要等待更长的时间才能获得 CPU。
 
 因此，时间片大小的设置需要根据具体情况进行调整，不能简单地认为增加时间片大小一定会减少平均周转时间。需要根据系统中进程的数量、执行时间等因素来选择合适的时间片大小，从而达到更好的系统性能。
-
 # 实验4 基于内核栈切换的进程切换
+
 ---
+
 我这个实验做的不是很好，建议本实验参考其他的博客
 ## 1.  修改schedule函数
 在TSS切换中，依赖TR寄存器找到下一个进程的tss，从而实现切换，因此在switch_to中没有next的PCB。要在`switch_to`函数中，将TSS的切换改为内核栈的切换，首先要在`schedule`函数中给`switch_to`函数传入next的PCB。因为这里没有TSS的切换，需要再单独做LDT表的切换。
@@ -1259,10 +1276,10 @@ first_return_from_kernel:  # 一段包含iret的代码，用于返回用户栈
         pop %ds
         iret
 ```
-![image.png](image/image-21.png)
-![image.png](image/image-24.png)
-![image.png](image/image-23.png)
-![image.png](image/image-25.png)
+![](attachment/272c3457121ac25449d18a44519a3a56.png)
+![](attachment/51c4ca221a6f533faf3e74d6c11da93c.png)
+![](attachment/2486dfe436507ac24b973c6b4c513e77.png)
+![](attachment/51c4ca221a6f533faf3e74d6c11da93c.png)
 ## 3.  修改copy_process函数
 在fork.c的copy_process部分添加以下代码用于设置进程的内核栈， 并注释掉设置tss的部分
 ```
@@ -1361,7 +1378,7 @@ lseek函数用于在文件中移动文件指针的位置。该函数的原型如
 off_t lseek(int fd, off_t offset, int whence); // off_t 是long的别名，在<sys/types.h>中定义
 ```
 其中，fd 是已打开文件的文件描述符，offset 是需要移动的偏移量，whence 则用于指定相对于何处进行偏移，其取值可以为 SEEK_SET、SEEK_CUR 或 SEEK_END。这三个常量在<unistd.h> 头文件中定义
-![image.png](image/image-24.png)
+![](attachment/ee06a722e7ba781e506f36fd67cfc32c.png)
 
 - 当 whence 值为 SEEK_SET时，文件指针将被设置为相对于文件开头偏移 offset 个字节的位置。
 - 当 whence 值为 SEEK_CUR时，文件指针将被设置为相对于当前位置偏移 offset 个字节的位置。
@@ -1508,11 +1525,11 @@ int sys_sem_unlink(const char *name)
 
 ```
 将sys_function添加到内核的系统调用已在lab2讲解过，这里只上截图
-![image.png](image/image-24.png)
-![image.png](image/image-38.png)
+![](attachment/51c4ca221a6f533faf3e74d6c11da93c.png)
+![](attachment/c15ef0cb21a3f300d2f857ed2dfe1f93.png)
 修改Makefile
-![image.png](image/image-25.png)
-![image.png](image/image-26.png)
+![](attachment/51c4ca221a6f533faf3e74d6c11da93c.png)
+![](attachment/86a7f4e3d5fbd9a340787a51970cdda0.png)
 ## 4. 创建生产者-消费者进程
 在`pc.c`中写入以下内容
 ```c
@@ -1638,9 +1655,9 @@ sync  #将所有的缓存数据写入磁盘，lab3中出现过
 cp hdc/usr/root/sem_output sem_output
 gedit sem_output
 ```
-![image.png](image/image-37.png)
+![](attachment/86a7f4e3d5fbd9a340787a51970cdda0.png)
 查看sem_output验证信号量机制的正确性
-![image.png](image/image-28.png)
+![](attachment/7f643184367f37c18a7cd185b7c1f91d.png)
 可以看出，producer每生产一轮，即填满容量为10的缓冲区后，5个consumer就开始消耗缓冲区，消耗完后producer又生产一轮，直到达到最大产品数量`NR_PRODUCTS = 50`(0~49)后退出，consumer在消耗完所有产品后也退出
 [reference](https://www.cnblogs.com/mirage-mc/p/12913993.html)
 # 实验6 地址映射与共享
@@ -1648,49 +1665,49 @@ gedit sem_output
 
 1. 启动调试，获取i的逻辑地址为`ds:0x3004`，ds表明该地址属于由ds寄存器指示的段 (后续称ds段)
 
-![image.png](image/image-31.png)
+![](attachment/be0fe056a34a3f0d79a4adbf9469162b.png)
 
 2. 通过段表(LDT)，确定ds段的起始地址，进而将逻辑地址转化为虚拟地址。段表由LDTR指示，运行命令`sreg`查看LDTR的值，该寄存器用于从GDT中取出进程的LDT地址
 
-![image.png](image/image-32.png)
+![](attachment/96f0f5111b99db234b71b696fffa6d9b.png)
 LDTR的值为`0x68 = 0x0000 0000 0110 1000`，取3~15位表示段选择子`1101`，说明目标LDT在GDT的第13项(从0索引)
 GDT的地址已经由gdtr指出为`0x00005cb8`，因为GDT每项段描述符占8个字节，因此查看GDT的`0x00005cb8+8*13`处的8个字节，这8个字节就是目标LDT的段描述符
-![image.png](image/image-30.png)
+![](attachment/7f643184367f37c18a7cd185b7c1f91d.png)
 根据段描述符的结构，从0x**52d0**0068 0x**00**0082**fd**(0~64bits）提取出`0x00fd52d0`，这就是目标LDT的基地址
-![image.png](image/image-30.png)
+![](attachment/7f643184367f37c18a7cd185b7c1f91d.png)
 ds段的基地址由ds寄存器(段选择子)在LDT中指示，我们先用`sreg`查看ds的值
-![image.png](image/image-32.png)
+![](attachment/96f0f5111b99db234b71b696fffa6d9b.png)
 段选择子ds的值是0x0017 = 0x **0000 0000 0001 0**111 (16bits)，根据段选择子的结构
-![image.png](image/image-28.png)
+![](attachment/c15ef0cb21a3f300d2f857ed2dfe1f93.png)
 从ds中提取出段选择符的索引`0x10`，可见ds段在LDT的第3项(从0编号)，于是接下来查看目标LDT的前四项(每项占四个字节)
-![image.png](image/image-32.png)
+![](attachment/96f0f5111b99db234b71b696fffa6d9b.png)
 获取了目标LDT中第3个段描述符的数据: 0x**0000**3fff 0x**10**c0f3**00**，根据段描述符的结构，提取出基地址: `1000 0000`，自此我们可以将`i`逻辑地址转化为虚拟地址(线性地址)了
 虚拟地址：$base +offset=0x1000\,0000 + 0x3004 =0x1000\,3004$
 
 3. 将虚拟地址映射到的物理地址
 
 根据虚拟地址结构，可知`0x1000 3004 = 0x0001 0000...0000 0011 000..0 0100`表示的物理地址在页目录64对应的页表中，页号为3(页号连续，因此由第3个页表项指示)，页内偏移为4
-![image.png](image/image-29.png)
+![](attachment/7f643184367f37c18a7cd185b7c1f91d.png)
 内存中页目录表的位置由寄存器CR3指示，使用`creg`查看CR3寄存器的值
-![image.png](image/image-32.png)
+![](attachment/a732a95e6628aa8f992d859de9548ce8.png)
 CR3的值为0x00000000，所以页目录表从地址0x00000000开始，我们要获取第64项，页目录表每项占4个字节，因此使用`xp /2w 0+64*4`查看第64项的内容
-![image.png](image/image-32.png)
+![](attachment/be0fe056a34a3f0d79a4adbf9469162b.png)
 得到第64个页目录项的内容为: 0x**00fa7**027 0x00000000，根据页目录项的结构，前20位表示所指向的页表的地址的高20位 ([why](https://stackoverflow.com/questions/26858196/why-does-page-directory-entries-need-20-bits-to-point-210-page-tables)）为`0x00fa7`，因为页表物理地址的低12位为0（对齐到4KB的倍数），因此页表的最终的物理地址为`0x00fa7000`
-![image.png](image/image-33.png)
+![](attachment/a732a95e6628aa8f992d859de9548ce8.png)
 一个页表项占4个字节，使用`xp /2w 0x00fa7000+4*3`查找目标页表的第3个页表项(物理页框)
-![image.png](image/image-33.png)
+![](attachment/a732a95e6628aa8f992d859de9548ce8.png)
 得到第3个页表项的内容为0x**00fa6**067 0x00000000
 根据页表项的结构，前20项表示物理页框的高20位地址: 0x00fa6 (物理页面大小为4KB，基地址与4KB对齐，为 0x**** **** **** **** **** 0000 0000 0000) ,因此目标物理页框的基地址为0x00fa6000
-![image.png](image/image-34.png)
+![](attachment/a732a95e6628aa8f992d859de9548ce8.png)
 最后我们加上页内偏移4，得到最终的物理地址`0x00fa6004`
 
 4. 验证
 
 执行`xp /w 0x00fa6004`查看我们确定的物理地址的数据内容
-![image.png](image/image-33.png)
+![](attachment/be0fe056a34a3f0d79a4adbf9469162b.png)
 这个值与`i`在程序中的值相一致
 用命令`setpmem 0x00fa6004 4 0`将`0x00fa6004`开始的4个字节(i为int型)全部设置为0，即设置i为0，则程序从原本的无限循环中退出
-![image.png](image/image-39.png)
+![](attachment/a732a95e6628aa8f992d859de9548ce8.png)
 ## 2. 添加共享内存功能
 ### (1) 前提: 通过brk划分虚拟内存
 进程栈和堆之间的内存空间可以映射到共享的物理页面，brk作为指向进程堆的末尾的指针（即下图中处于下方的虚线），将brk加上进程数据段在虚拟内存中的基址，便可以得到brk的虚拟地址，以这个地址为起点，划分出大小为PAGE_SIZE的虚拟内存，再将这部分虚拟内存通过`put_page`映射到共享内存上
@@ -1941,31 +1958,31 @@ int main(int argc, char* argv[])
 1. 添加到系统调用
 
 如之前的lab一样，验证结果时将unistd.h复制到hdc/usr/include目录下，记得将shm.h也复制到对应目录中
-![image.png](image/image-35.png)
-![image.png](image/image-40.png)
-![image.png](image/image-36.png)
+![](attachment/e8b42fd0449952451907b1e0f34ce770.png)
+![](attachment/9b9b2cd55c94679c33508fb4312374e4.png)
+![](attachment/9b9b2cd55c94679c33508fb4312374e4.png)
 
 2. 修改MakeFile
 
 `linux-0.11/kernel/Makefile`
-![image.png](image/image-35.png)
-![image.png](image/image-41.png)
+![](attachment/e8b42fd0449952451907b1e0f34ce770.png)
+![](attachment/9b9b2cd55c94679c33508fb4312374e4.png)
 ### (7) 踩的坑
 
 1. 编译shm.c时，总是出现`parse error before int`的错误，耗时调试了一个小时还是无法解决，Google后发现原因在于linux0.11下的C标准为C89，要求声明变量的语句只能出现在非声明语句的前面 (声明同时又赋值语句的可以)
 2. lab5的sem.c写的有问题，consumer进程一直处于sleep状态，添加了几条打印语句后发现，consumer进程和producer进程未使用同一套信号量，原因在于sem.c的sys_sem_open函数内定义kernel_sem_name未显式的初始化，我以为该变量会[默认初始化为0值](https://stackoverflow.com/questions/18688971/c-char-array-initialization-what-happens-if-there-are-less-characters-in-the-st) ('\0')，但在c89的标准下，未显式初始化的字符数组不会被默认初始化，这将导致未知的行为，发现这点花了我不少时间。在显式初始化`char kernel_sem_name[25]={"\0"};`后结果正确
 3. consumer进程会出现"kernel panic: trying to free free page"，出现这个问题的原因是producer进程和consumer进程共用一个页面，producer生产完全部产品后先退出同时释放共享内存，这将导致consumer进程退出时试图释放已经释放的页面，解决方法是注释掉memery.c文件中free_page函数中的相关panic语句
 
-![image.png](image/image-41.png)
+![](attachment/c1c065677d7c02278e139b2ba94820eb.png)
 ## 3. 验证结果
-![image.png](image/image-41.png)
+![](attachment/e8b42fd0449952451907b1e0f34ce770.png)
 ```
 ./mount-hdc
 cp hdc/usr/root/c_output c_output.txt
 cp hdc/usr/root/p_output p_output.txt
 ```
-![image.png](image/image-42.png)
-![image.png](image/image-46.png)
+![](attachment/b0b5ce1ce892390ca5bd7e49ad3adba9.png)
+![](attachment/b0b5ce1ce892390ca5bd7e49ad3adba9.png)
 # 实验7 终端设备的控制
 ##  1. 添加新的f12响应函数
 ```c
@@ -1979,20 +1996,20 @@ void press_f12_handle(void) {
     }
 }
 ```
-![image.png](image/image-42.png)
+![](attachment/c1c065677d7c02278e139b2ba94820eb.png)
 ## 2. 设置响应函数入口
 键盘输入后，操作系统会将键盘扫描码做为下标，调用key_table函数数组中保存的与该按键对应的响应函数，因此要让CPU在按下f12之后跳转到新的响应函数执行需要修改key_table，从该数组一旁的注释就可以看出f12对应的scan code是88D (58H)
-![image.png](image/image-42.png)
+![](attachment/c1c065677d7c02278e139b2ba94820eb.png)
 ## 3. 修改con_write函数
 con_write函数执行最终的输出显示器操作，该函数先用GETCH从输出缓冲区中提取一个字节字符到变量`c`，再写入显存中。我们根据flag修改变量`c`的值即可，为了实验结果更可观，我们选择只对字母和数字的输出进行转换
-![image.png](image/image-43.png)
+![](attachment/b0b5ce1ce892390ca5bd7e49ad3adba9.png)
 ## 4. 修改tty.h
 在头文件中包含`switch_by_f12_flag`变量和响应函数的声明，以便在其他文件中使用
-![image.png](image/image-42.png)
+![](attachment/b0b5ce1ce892390ca5bd7e49ad3adba9.png)
 ## 5. 验证结果
-![image.png](image/image-42.png)
+![](attachment/b0b5ce1ce892390ca5bd7e49ad3adba9.png)
 # 实验8 proc文件系统的实现
-## 8.1. 前提
+## 前提
 ### vsprintf函数
 vsprintf 是一个C库函数，用于将可变参数列表（va_list）中的值格式化为字符串，并将结果字符串存储在指定的字符数组（缓冲区）中。vsprintf 是 sprintf 函数的可变参数版本，通常在需要处理可变数量参数的情况下使用。
 vsprintf 函数的原型如下：
@@ -2015,7 +2032,6 @@ void va_start(va_list ap, last_arg);
 
 1. ap：一个 va_list 类型的变量，用于存储指向可变参数列表的状态。
 2. last_arg：函数参数列表中最后一个**固定参数**的名称 (可变参数在固定参数之后)。在初始化 va_list 时，va_start 会找到此固定参数在内存中的位置，从而确定可变参数列表的起始位置。
-
 ### mknod系统调用
 mknod 系统调用用于创建特殊文件（设备文件）在文件系统中。特殊文件通常用于表示设备，如字符设备和块设备。字符设备通常用于表示可逐字符读写的设备，如终端设备；块设备通常用于表示可按块读写的设备，如磁盘设备。本实验用它来创建proc文件。
 mknod 系统调用的主要参数包括：
@@ -2033,31 +2049,27 @@ mknod 系统调用的主要参数包括：
 5. 更新文件系统元数据，如目录和 inode 的更改时间等。
 
 创建特殊文件后，应用程序可以使用设备文件与相应的设备进行通信。例如，通过 open、read、write 和 ioctl 系统调用与设备驱动程序进行交互。这使得设备操作看起来与普通文件操作相似，简化了应用程序的开发。
-
-## 8.2.添加proc类型文件
+## 添加proc类型文件
 OS根据文件类型选择不同处理函数，从而实现对不同类型的文件的操作，我们先在linux0.11中添加proc类型文件，之后再编写对应的处理函数就能完成proc文件系统的添加了。
-![image.png](image/image-50.png)
-## 8.3. 修改mknod系统调用
+![](attachment/40e187fa3aba0142eecbbd33961b9403.png)
+## 修改mknod系统调用
 我们已经提到，mknod用于创建特殊文件，即块设备文件和字符流文件。现在我们要给它添加对proc文件的支持。
-![image.png](image/image-42.png)
-
-## 8.4. 创建proc目录文件，proc普通文件
+![](attachment/b0b5ce1ce892390ca5bd7e49ad3adba9.png)
+## 创建proc目录文件，proc普通文件
 在系统初始化时，根目录文件挂载之后 (这样传递给mknod的路径才有效)，创建proc文件系统的目录文件和文件。
 因为此时在用户态，因此要通过添加系统调用的方式使用mkdir和mknod，而不能直接使用sys_mkdir和sys_mknod
-![image.png](image/image-44.png)
-![image.png](image/image-45.png)
-
-## 8.5. 验证文件是否创建成功
-![image.png](image/image-43.png)
+![](attachment/b0b5ce1ce892390ca5bd7e49ad3adba9.png)
+![](attachment/9ea47fc33eb2a545878bf9a8d583db88.png)
+## 验证文件是否创建成功
+![](attachment/b0b5ce1ce892390ca5bd7e49ad3adba9.png)
 可以看到，我们已经成功在根目录下创建了proc目录文件，并在该文件下创建了proc普通文件，这三个文件分别表示系统进程信息，系统硬件信息，系统存储信息
 这里使用cat输出了一行信息和一行报错，要明白这两条信息怎么来的，首先要知道cat命令背后执行了什么操作: 用sys_open打开一个文件，用sys_read将文件内容读入缓冲区，最后用printf打印缓冲区的内容到屏幕上
-![image.png](image/image-45.png)
+![](attachment/9ea47fc33eb2a545878bf9a8d583db88.png)
 通过查看sys_read的源码，我们可以找到这两条信息的来源。当sys_read打开proc类型文件没有对应的处理函数时，就会出现这两条信息，因此我们接下来为proc类型文件编写对应的处理函数proc_read即可
-![image.png](image/image-48.png)
+![](attachment/9ea47fc33eb2a545878bf9a8d583db88.png)
 为proc文件添加处理分支
-![image.png](image/image-47.png)
-
-## 8.6. 编写proc文件处理函数
+![](attachment/9ea47fc33eb2a545878bf9a8d583db88.png)
+## 编写proc文件处理函数
 添加`linux-0.11/fs/proc_read.c`，这里只完成了进程信息的获取
 ```c
 #include <asm/segment.h>  // put_fs_byte
@@ -2114,9 +2126,9 @@ int proc_read(int dev, off_t *pos, char *buf, int count) {
     return i;  // return the actual number of bytes read
 }
 ```
-## 8.7. 修改Makefile
-![image.png](image/image-49.png)
-![image.png](image/image-49.png)
-## 8.8. 验证结果
-![image.png](image/image-49.png)
+## 修改Makefile
+![](attachment/9ea47fc33eb2a545878bf9a8d583db88.png)
+![](attachment/9ea47fc33eb2a545878bf9a8d583db88.png)
+## 验证结果
+![](attachment/9ea47fc33eb2a545878bf9a8d583db88.png)
 [reference](https://www.cnblogs.com/mirage-mc/tag/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AF%BE%E8%AE%BE/)
