@@ -12,5 +12,5 @@ HIT operating system labs (linux0.11)
 ---
 _Learning operating system by coding it！_
 
-具体细节见我的[blog](https://elite-zx.github.io/2023/05/06/HIT-OS/HIT-OS-Labs/)
+具体细节见我的[blog](git@github.com:Elite-zx/HIT-OSLab.git)
 
